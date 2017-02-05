@@ -1,0 +1,7 @@
+[package]
+name = "df"
+version = "0.1.0"
+authors = ["Mike Sampson <mike@sambodata.com>"]
+
+[dependencies]
+nix = "*"
