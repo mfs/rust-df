@@ -6,6 +6,16 @@ use std::io::BufRead;
 use std::collections::HashSet;
 use nix::sys::statvfs::vfs::Statvfs;
 
+// http://stackoverflow.com/questions/5194057/better-way-to-convert-file-sizes-in-python
+fn iec(n: u64) -> String {
+    let units = ["B", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
+
+    let i = (n as f64).log(1024_f64).floor() as u32;
+    let p = 1024_u64.pow(i);
+    let s = (n as f64)/(p as f64);
+    format!("{:.0}{}", s, units[i as usize])
+}
+
 fn main() {
     let file = File::open("/proc/mounts").unwrap();
     let reader = BufReader::new(&file);
@@ -17,6 +27,10 @@ fn main() {
         excludes.insert(t);
     }
 
+    let headers = ["Filesystem", "Size", "Used", "Avail", "Mounted on"];
+    println!("{:30} {:>9} {:>9} {:>9} {:16}",
+             headers[0], headers[1], headers[2], headers[3], headers[4]);
+
     for line in reader.lines() {
         match line {
             Ok(line) => {
@@ -25,7 +39,12 @@ fn main() {
                     continue;
                 }
                 let statvfs = Statvfs::for_path(fields[1]).unwrap();
-                println!("{} {} {} {}", fields[0], fields[1], fields[2], statvfs.f_bsize);
+                let size = statvfs.f_blocks * statvfs.f_bsize;
+                let avail = statvfs.f_bavail * statvfs.f_bsize;
+                let used = size - avail;
+                //let percent =
+                println!("{:30} {:>9} {:>9} {:>9} {:16}",
+                         fields[0], iec(size), iec(avail), iec(used), fields[1]);
             },
             Err(_) => panic!(),
         }
