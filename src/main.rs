@@ -16,6 +16,17 @@ fn iec(n: u64) -> String {
     format!("{:.0}{}", s, units[i as usize])
 }
 
+// /dev/mapper/vg-lv -> /dev/vg/lv
+// this needs much better error checking
+fn shorten_lv(path: &str) -> String {
+    if path.starts_with("/dev/mapper/") {
+        let lv = path.split('/').nth(3).unwrap();
+        let c: Vec<&str> = lv.split('-').collect();
+        return format!("/dev/{}/{}", c[0], c[1]);
+    }
+    path.to_string()
+}
+
 fn main() {
     let file = File::open("/proc/mounts").unwrap();
     let reader = BufReader::new(&file);
@@ -44,7 +55,7 @@ fn main() {
                 let used = size - avail;
                 //let percent =
                 println!("{:30} {:>9} {:>9} {:>9} {:16}",
-                         fields[0], iec(size), iec(avail), iec(used), fields[1]);
+                         shorten_lv(fields[0]), iec(size), iec(avail), iec(used), fields[1]);
             },
             Err(_) => panic!(),
         }
