@@ -1,5 +1,6 @@
 extern crate nix;
 
+use std::cmp;
 use std::fs::File;
 use std::io::BufReader;
 use std::io::BufRead;
@@ -27,6 +28,15 @@ fn shorten_lv(path: &str) -> String {
     path.to_string()
 }
 
+#[derive(Debug)]
+struct Stats {
+    filesystem: String,
+    size: String,
+    used: String,
+    avail: String,
+    mount: String,
+}
+
 fn main() {
     let file = File::open("/proc/mounts").unwrap();
     let reader = BufReader::new(&file);
@@ -38,9 +48,8 @@ fn main() {
         excludes.insert(t);
     }
 
-    let headers = ["Filesystem", "Size", "Used", "Avail", "Mounted on"];
-    println!("{:30} {:>9} {:>9} {:>9} {:16}",
-             headers[0], headers[1], headers[2], headers[3], headers[4]);
+    let mut stats: Vec<Stats> = Vec::new();
+    let mut max_width = 0;
 
     for line in reader.lines() {
         match line {
@@ -54,10 +63,29 @@ fn main() {
                 let avail = statvfs.f_bavail * statvfs.f_bsize;
                 let used = size - avail;
                 //let percent =
-                println!("{:30} {:>9} {:>9} {:>9} {:16}",
-                         shorten_lv(fields[0]), iec(size), iec(avail), iec(used), fields[1]);
+                let s = Stats {
+                    filesystem: shorten_lv(fields[0]),
+                    size: iec(size),
+                    used: iec(used),
+                    avail: iec(avail),
+                    mount: fields[1].to_string(),
+                };
+                max_width = cmp::max(max_width, s.filesystem.len());
+                stats.push(s);
             },
             Err(_) => panic!(),
         }
     }
+
+    let headers = ["Filesystem", "Size", "Used", "Avail", "Mounted on"];
+    println!("{:width$} {:>5} {:>5} {:>5} {:16}",
+             headers[0], headers[1], headers[2], headers[3],
+             headers[4], width = max_width);
+
+    for stat in stats {
+        println!("{:width$} {:>5} {:>5} {:>5} {:16}",
+                 stat.filesystem, stat.size, stat.used, stat.avail,
+                 stat.mount, width = max_width);
+    }
+
 }
