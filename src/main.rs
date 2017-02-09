@@ -1,4 +1,5 @@
 extern crate nix;
+extern crate colored;
 
 mod util;
 mod stats;
@@ -9,6 +10,7 @@ use std::io::BufReader;
 use std::io::BufRead;
 use std::collections::HashSet;
 use nix::sys::statvfs::vfs::Statvfs;
+use colored::*;
 
 use util::iec;
 use stats::Stats;
@@ -48,6 +50,7 @@ fn main() {
     }
 
     let headers = ["Filesystem", "Size", "Used", "Avail", "Use%", "Mounted on"];
+    let headers: Vec<ColoredString> = headers.into_iter().map(|x| x.yellow()).collect();
     println!("{:width$} {:>5} {:>5} {:>5} {:>5} {:16}",
              headers[0], headers[1], headers[2], headers[3],
              headers[4], headers[5], width = max_width);

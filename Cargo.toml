@@ -5,3 +5,4 @@ authors = ["Mike Sampson <mike@sambodata.com>"]
 
 [dependencies]
 nix = "*"
+colored = "*"
