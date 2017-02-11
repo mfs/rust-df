@@ -12,7 +12,7 @@ use std::collections::HashSet;
 use nix::sys::statvfs::vfs::Statvfs;
 use colored::*;
 
-use util::iec;
+use util::{iec, bargraph};
 use stats::Stats;
 
 fn main() {
@@ -49,16 +49,16 @@ fn main() {
         }
     }
 
-    let headers = ["Filesystem", "Size", "Used", "Avail", "Use%", "Mounted on"];
+    let headers = ["Filesystem", "Size", "Used", "Avail", "Use%", "", "Mounted on"];
     let headers: Vec<ColoredString> = headers.into_iter().map(|x| x.yellow()).collect();
-    println!("{:width$} {:>5} {:>5} {:>5} {:>5} {:16}",
+    println!("{:width$} {:>5} {:>5} {:>5} {:>5} {:20} {:16}",
              headers[0], headers[1], headers[2], headers[3],
-             headers[4], headers[5], width = max_width);
+             headers[4], headers[5], headers[6], width = max_width);
 
     for stat in stats {
-        println!("{:width$} {:>5} {:>5} {:>5} {:>5.1} {:16}",
+        println!("{:width$} {:>5} {:>5} {:>5} {:>5.1} {:20} {:16}",
                  stat.filesystem, iec(stat.size), iec(stat.used), iec(stat.avail),
-                 stat.percent, stat.mount, width = max_width);
+                 stat.percent, bargraph(stat.percent), stat.mount, width = max_width);
     }
 
 }

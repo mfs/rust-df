@@ -1,3 +1,4 @@
+use colored::*;
 
 // http://stackoverflow.com/questions/5194057/better-way-to-convert-file-sizes-in-python
 pub fn iec(n: u64) -> String {
@@ -18,4 +19,12 @@ pub fn shorten_lv(path: &str) -> String {
         return format!("/dev/{}/{}", c[0], c[1]);
     }
     path.to_string()
+}
+
+pub fn bargraph(percent: f64) -> String {
+    let chars = "■■■■■■■■■■■■■■■■■■■■";
+    let s1 = (percent / 10.0).round() as usize * 2;
+    let s2 = 20 - s1;
+    format!("{}{}", chars.chars().take(s1).collect::<String>().green(),
+            chars.chars().take(s2).collect::<String>().white().dimmed())
 }
