@@ -10,6 +10,6 @@ Here is a video from Rust Belt 2016 which mentions the nix crate I'm using.
 
 ## Screenshot
 
-![rust-df screenshot](imges/screen.png)
+![rust-df screenshot](images/screen.png)
 
 *Yes my NAS is running out of space.*
