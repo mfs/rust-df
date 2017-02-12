@@ -15,6 +15,10 @@ use colored::*;
 use util::{iec, bargraph};
 use stats::Stats;
 
+const FS_SPEC: usize = 0;
+const FS_FILE: usize = 1;
+const FS_VFSTYPE: usize = 2;
+
 fn main() {
     let file = File::open("/proc/mounts").unwrap();
     let reader = BufReader::new(&file);
@@ -33,14 +37,14 @@ fn main() {
         match line {
             Ok(line) => {
                 let fields: Vec<&str> = line.split_whitespace().collect();
-                if excludes.contains(fields[2]) {
+                if excludes.contains(fields[FS_VFSTYPE]) {
                     continue;
                 }
-                let statvfs = Statvfs::for_path(fields[1]).unwrap();
+                let statvfs = Statvfs::for_path(fields[FS_FILE]).unwrap();
                 let size = statvfs.f_blocks * statvfs.f_bsize;
                 let avail = statvfs.f_bavail * statvfs.f_bsize;
 
-                let s = Stats::new(fields[0], size, avail, fields[1]);
+                let s = Stats::new(fields[FS_SPEC], size, avail, fields[FS_FILE]);
 
                 max_width = cmp::max(max_width, s.filesystem.len());
                 stats.push(s);
