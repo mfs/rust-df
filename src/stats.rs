@@ -1,3 +1,4 @@
+use std::cmp::Ordering;
 
 use util::shorten_lv;
 
@@ -25,3 +26,23 @@ impl Stats {
         }
     }
 }
+
+impl Ord for Stats {
+    fn cmp(&self, other: &Stats) -> Ordering {
+        self.filesystem.cmp(&other.filesystem)
+    }
+}
+
+impl PartialOrd for Stats {
+    fn partial_cmp(&self, other: &Stats) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl PartialEq for Stats {
+    fn eq(&self, other: &Stats) -> bool {
+        self.filesystem == other.filesystem
+    }
+}
+
+impl Eq for Stats {}

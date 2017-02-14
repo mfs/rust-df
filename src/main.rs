@@ -53,6 +53,8 @@ fn main() {
         }
     }
 
+    stats.sort();
+
     let headers = ["Filesystem", "Size", "Used", "Avail", "Use%", "", "Mounted on"];
     let headers: Vec<ColoredString> = headers.into_iter().map(|x| x.yellow()).collect();
     println!("{:width$} {:>5} {:>5} {:>5} {:>5} {:20} {:16}",
