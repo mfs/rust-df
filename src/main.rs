@@ -25,7 +25,7 @@ fn main() {
 
     let mut excludes = HashSet::new();
     let exclude_types = "cgroup autofs securityfs configfs pstore binfmt_misc debugfs \
-                         hugetlbfs devpts mqueue proc sysfs";
+                         hugetlbfs devpts mqueue proc sysfs fusectl";
     for t in exclude_types.split_whitespace() {
         excludes.insert(t);
     }
