@@ -59,12 +59,12 @@ fn main() {
 
     let headers = ["Filesystem", "Size", "Used", "Avail", "Use%", "", "Mounted on"];
     let headers: Vec<ColoredString> = headers.into_iter().map(|x| x.yellow()).collect();
-    println!("{:width$} {:>5} {:>5} {:>5} {:>5} {:20} {:16}",
+    println!("{:width$} {:>5} {:>5} {:>5} {:>5} {:20} {}",
              headers[0], headers[1], headers[2], headers[3],
              headers[4], headers[5], headers[6], width = max_width);
 
     for stat in stats {
-        println!("{:width$} {:>5} {:>5} {:>5} {:>5.1} {:20} {:16}",
+        println!("{:width$} {:>5} {:>5} {:>5} {:>5.1} {:20} {}",
                  stat.filesystem, iec(stat.size), iec(stat.used), iec(stat.avail),
                  stat.percent, bargraph(stat.percent), stat.mount, width = max_width);
     }
