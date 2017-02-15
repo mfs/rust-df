@@ -25,7 +25,7 @@ fn main() {
 
     let mut excludes = HashSet::new();
     let exclude_types = "cgroup autofs securityfs configfs pstore binfmt_misc debugfs \
-                         hugetlbfs devpts mqueue proc sysfs fusectl";
+                         hugetlbfs devpts mqueue proc sysfs fusectl gvfsd-fuse";
     for t in exclude_types.split_whitespace() {
         excludes.insert(t);
     }
@@ -43,7 +43,9 @@ fn main() {
                 let statvfs = Statvfs::for_path(fields[FS_FILE]).unwrap();
                 let size = statvfs.f_blocks * statvfs.f_bsize;
                 let avail = statvfs.f_bavail * statvfs.f_bsize;
-
+                if size == 0 {
+                    continue;
+                }
                 let s = Stats::new(fields[FS_SPEC], size, avail, fields[FS_FILE]);
 
                 max_width = cmp::max(max_width, s.filesystem.len());
