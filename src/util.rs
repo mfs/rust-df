@@ -30,3 +30,16 @@ pub fn bargraph(percent: f64) -> String {
     format!("{}{}", chars.chars().take(s1).collect::<String>().green(),
             chars.chars().take(s2).collect::<String>().white().dimmed())
 }
+
+
+mod tests {
+    use super::shorten_lv;
+
+    #[test]
+    fn test_shorten_lv() {
+        assert_eq!(shorten_lv("/dev/mapper/vg-lv"), "/dev/vg/lv");
+        assert_eq!(shorten_lv("/dev/mapper/vg-lv--1"), "/dev/vg/lv-1");
+        assert_eq!(shorten_lv("/dev/mapper/vg--one-lv"), "/dev/vg-one/lv");
+        assert_eq!(shorten_lv("/dev/mapper/vg--one-lv--one"), "/dev/vg-one/lv-one");
+    }
+}
