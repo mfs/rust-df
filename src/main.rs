@@ -1,5 +1,6 @@
 extern crate nix;
 extern crate colored;
+extern crate regex;
 
 mod util;
 mod stats;

@@ -1,4 +1,5 @@
 use colored::*;
+use regex::Regex;
 
 // http://stackoverflow.com/questions/5194057/better-way-to-convert-file-sizes-in-python
 pub fn iec(n: u64) -> String {
@@ -11,13 +12,14 @@ pub fn iec(n: u64) -> String {
 }
 
 // /dev/mapper/vg-lv -> /dev/vg/lv
-// this needs much better error checking
 pub fn shorten_lv(path: &str) -> String {
-    if path.starts_with("/dev/mapper/") {
-        let lv = path.split('/').nth(3).unwrap();
-        let c: Vec<&str> = lv.split('-').collect();
-        return format!("/dev/{}/{}", c[0], c[1]);
+    let re = Regex::new(r"^/dev/mapper/(.*?)-(.*)").unwrap();
+
+    match re.captures(path) {
+        Some(caps) => return format!("/dev/{}/{}", &caps[1], &caps[2].replace("--", "-")),
+        None       => {},
     }
+
     path.to_string()
 }
 
