@@ -1,5 +1,4 @@
 use colored::*;
-use regex::Regex;
 
 // http://stackoverflow.com/questions/5194057/better-way-to-convert-file-sizes-in-python
 pub fn iec(n: u64) -> String {
@@ -11,13 +10,18 @@ pub fn iec(n: u64) -> String {
     format!("{:.0}{}", s, units[i as usize])
 }
 
-// /dev/mapper/vg-lv -> /dev/vg/lv
+// valid VG/LV characters are: a-z A-Z 0-9 + _ . -
+// we use this fact and replace -- with #
+// split on - and then switch # back to -
 pub fn shorten_lv(path: &str) -> String {
-    let re = Regex::new(r"^/dev/mapper/(.*?)-(.*)").unwrap();
+    const MARK: &'static str = "#";
 
-    match re.captures(path) {
-        Some(caps) => return format!("/dev/{}/{}", &caps[1], &caps[2].replace("--", "-")),
-        None       => {},
+    if path.starts_with("/dev/mapper/") {
+        if let Some(lv) = path.split('/').nth(3) {
+            let lv = lv.replace("--", MARK);
+            let lv_vg: Vec<String> = lv.split("-").map(|x| x.replace(MARK, "-")).collect();
+            return format!("/dev/{}/{}", lv_vg[0], lv_vg[1]);
+        }
     }
 
     path.to_string()
@@ -31,7 +35,7 @@ pub fn bargraph(percent: f64) -> String {
             chars.chars().take(s2).collect::<String>().white().dimmed())
 }
 
-
+#[cfg(test)]
 mod tests {
     use super::shorten_lv;
 
