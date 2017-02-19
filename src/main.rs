@@ -8,6 +8,7 @@ use std::cmp;
 use std::fs::File;
 use std::io::BufReader;
 use std::io::BufRead;
+use std::process;
 use std::collections::HashSet;
 use nix::sys::statvfs::vfs::Statvfs;
 use colored::*;
@@ -20,7 +21,13 @@ const FS_FILE: usize = 1;
 const FS_VFSTYPE: usize = 2;
 
 fn main() {
-    let file = File::open("/proc/mounts").unwrap();
+    let file = match File::open("/proc/mounts") {
+        Ok(f)  => f,
+        Err(e) => {
+            println!("Error: Could not open /proc/mounts - {}", e);
+            process::exit(1);
+        },
+    };
     let reader = BufReader::new(&file);
 
     let mut excludes = HashSet::new();
@@ -40,7 +47,13 @@ fn main() {
                 if excludes.contains(fields[FS_VFSTYPE]) {
                     continue;
                 }
-                let statvfs = Statvfs::for_path(fields[FS_FILE]).unwrap();
+                let statvfs = match Statvfs::for_path(fields[FS_FILE]) {
+                    Ok(s) => s,
+                    Err(err) => {
+                        println!("Error: {}", err);
+                        continue;
+                    },
+                };
                 let size = statvfs.f_blocks * statvfs.f_bsize;
                 let avail = statvfs.f_bavail * statvfs.f_bsize;
                 if size == 0 {
@@ -51,7 +64,7 @@ fn main() {
                 max_width = cmp::max(max_width, s.filesystem.len());
                 stats.push(s);
             },
-            Err(_) => panic!(),
+            Err(err) => println!("Error: {}", err),
         }
     }
 
