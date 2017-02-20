@@ -27,7 +27,10 @@ pub fn shorten_lv(path: &str) -> String {
     path.to_string()
 }
 
-pub fn bargraph(percent: f64) -> String {
+pub fn bargraph(mut percent: f64) -> String {
+    if percent.is_nan() {
+        percent = 0.0;
+    }
     let chars = "■■■■■■■■■■■■■■■■■■■■";
     let s1 = (percent / 10.0).round() as usize * 2;
     let s2 = 20 - s1;

@@ -1,3 +1,4 @@
+extern crate getopts;
 extern crate nix;
 extern crate colored;
 
@@ -12,6 +13,8 @@ use std::process;
 use std::collections::HashSet;
 use nix::sys::statvfs::vfs::Statvfs;
 use colored::*;
+use std::env;
+use getopts::Options;
 
 use util::{iec, bargraph};
 use stats::Stats;
@@ -21,6 +24,14 @@ const FS_FILE: usize = 1;
 const FS_VFSTYPE: usize = 2;
 
 fn main() {
+    let args: Vec<String> = env::args().collect();
+    let mut opts = Options::new();
+    opts.optflag("a", "all", "display all filesystems");
+    let matches = match opts.parse(&args[1..]) {
+        Ok(m)  => m,
+        Err(e) => { panic!(e); },
+    };
+
     let file = match File::open("/proc/mounts") {
         Ok(f)  => f,
         Err(e) => {
@@ -33,8 +44,10 @@ fn main() {
     let mut excludes = HashSet::new();
     let exclude_types = "cgroup autofs securityfs configfs pstore binfmt_misc debugfs \
                          hugetlbfs devpts mqueue proc sysfs fusectl gvfsd-fuse";
-    for t in exclude_types.split_whitespace() {
-        excludes.insert(t);
+    if !matches.opt_present("a") {
+        for t in exclude_types.split_whitespace() {
+            excludes.insert(t);
+        }
     }
 
     let mut stats: Vec<Stats> = Vec::new();
@@ -56,7 +69,7 @@ fn main() {
                 };
                 let size = statvfs.f_blocks * statvfs.f_bsize;
                 let avail = statvfs.f_bavail * statvfs.f_bsize;
-                if size == 0 {
+                if size == 0 && !matches.opt_present("a") {
                     continue;
                 }
                 let s = Stats::new(fields[FS_SPEC], size, avail, fields[FS_FILE]);
