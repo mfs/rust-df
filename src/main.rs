@@ -4,13 +4,13 @@ extern crate colored;
 
 mod util;
 mod stats;
+mod filesystems;
 
 use std::cmp;
 use std::fs::File;
 use std::io::BufReader;
 use std::io::BufRead;
 use std::process;
-use std::collections::HashSet;
 use nix::sys::statvfs::vfs::Statvfs;
 use colored::*;
 use std::env;
@@ -18,6 +18,7 @@ use getopts::Options;
 
 use util::{iec, bargraph};
 use stats::Stats;
+use filesystems::pseudo_filesystems;
 
 const FS_SPEC: usize = 0;
 const FS_FILE: usize = 1;
@@ -41,14 +42,7 @@ fn main() {
     };
     let reader = BufReader::new(&file);
 
-    let mut excludes = HashSet::new();
-    let exclude_types = "cgroup autofs securityfs configfs pstore binfmt_misc debugfs \
-                         hugetlbfs devpts mqueue proc sysfs fusectl gvfsd-fuse";
-    if !matches.opt_present("a") {
-        for t in exclude_types.split_whitespace() {
-            excludes.insert(t);
-        }
-    }
+    let excludes = pseudo_filesystems();
 
     let mut stats: Vec<Stats> = Vec::new();
     let mut max_width = 0;
@@ -57,7 +51,7 @@ fn main() {
         match line {
             Ok(line) => {
                 let fields: Vec<&str> = line.split_whitespace().collect();
-                if excludes.contains(fields[FS_VFSTYPE]) {
+                if !matches.opt_present("a") && excludes.contains(fields[FS_VFSTYPE]) {
                     continue;
                 }
                 let statvfs = match Statvfs::for_path(fields[FS_FILE]) {
