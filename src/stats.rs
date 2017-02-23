@@ -28,6 +28,10 @@ impl Stats {
             score: score,
         }
     }
+
+    pub fn is_network(&self) -> bool {
+        self.score == FS_NET
+    }
 }
 
 const FS_DEV: usize = 0;

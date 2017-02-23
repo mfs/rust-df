@@ -84,8 +84,13 @@ fn main() {
              headers[4], headers[5], headers[6], width = max_width);
 
     for stat in stats {
+        let fs = if stat.is_network() {
+            stat.filesystem.blue()
+        } else {
+            stat.filesystem.normal()
+        };
         println!("{:width$} {:>5} {:>5} {:>5} {:>5.1} {:20} {}",
-                 stat.filesystem, iec(stat.size), iec(stat.used), iec(stat.avail),
+                 fs, iec(stat.size), iec(stat.used), iec(stat.avail),
                  stat.percent, bargraph(stat.percent), stat.mount, width = max_width);
     }
 
