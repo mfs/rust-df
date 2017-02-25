@@ -85,7 +85,7 @@ fn main() {
 
     for stat in stats {
         let fs = if stat.is_network() {
-            stat.filesystem.blue()
+            stat.filesystem.cyan()
         } else {
             stat.filesystem.normal()
         };
