@@ -89,9 +89,14 @@ fn main() {
         } else {
             stat.filesystem.normal()
         };
-        println!("{:width$} {:>5} {:>5} {:>5} {:>5.1} {:20} {}",
+        let percent = if stat.percent.is_nan() {
+            "    -".to_string()
+        } else {
+            format!("{:>5.1}", stat.percent)
+        };
+        println!("{:width$} {:>5} {:>5} {:>5} {} {:20} {}",
                  fs, iec(stat.size), iec(stat.used), iec(stat.avail),
-                 stat.percent, bargraph(stat.percent), stat.mount, width = max_width);
+                 percent, bargraph(stat.percent), stat.mount, width = max_width);
     }
 
 }
