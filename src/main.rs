@@ -1,4 +1,4 @@
-extern crate getopts;
+extern crate clap;
 extern crate nix;
 extern crate colored;
 
@@ -13,8 +13,7 @@ use std::io::BufRead;
 use std::process;
 use nix::sys::statvfs::vfs::Statvfs;
 use colored::*;
-use std::env;
-use getopts::Options;
+use clap::{Arg, App};
 
 use util::{iec, bargraph};
 use stats::Stats;
@@ -25,13 +24,15 @@ const FS_FILE: usize = 1;
 const FS_VFSTYPE: usize = 2;
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-    let mut opts = Options::new();
-    opts.optflag("a", "all", "display all filesystems");
-    let matches = match opts.parse(&args[1..]) {
-        Ok(m)  => m,
-        Err(e) => { panic!(e); },
-    };
+    let matches = App::new("df")
+        .version("0.1.0")
+        .author("Mike Sampson <mike@sda.io>")
+        .arg(Arg::with_name("all")
+             .long("all")
+             .short("a")
+             .help("Display all filesystems")
+             )
+        .get_matches();
 
     let file = match File::open("/proc/mounts") {
         Ok(f)  => f,
@@ -51,7 +52,7 @@ fn main() {
         match line {
             Ok(line) => {
                 let fields: Vec<&str> = line.split_whitespace().collect();
-                if !matches.opt_present("a") && excludes.contains(fields[FS_VFSTYPE]) {
+                if !matches.is_present("all") && excludes.contains(fields[FS_VFSTYPE]) {
                     continue;
                 }
                 let statvfs = match Statvfs::for_path(fields[FS_FILE]) {
@@ -63,7 +64,7 @@ fn main() {
                 };
                 let size = statvfs.f_blocks * statvfs.f_bsize;
                 let avail = statvfs.f_bavail * statvfs.f_bsize;
-                if size == 0 && !matches.opt_present("a") {
+                if size == 0 && !matches.is_present("all") {
                     continue;
                 }
                 let s = Stats::new(fields[FS_SPEC], size, avail, fields[FS_FILE]);
