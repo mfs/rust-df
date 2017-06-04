@@ -24,7 +24,7 @@ const FS_FILE: usize = 1;
 const FS_VFSTYPE: usize = 2;
 
 fn main() {
-    let matches = App::new("df")
+    let matches = App::new("rdf")
         .version("0.1.0")
         .author("Mike Sampson <mike@sda.io>")
         .arg(Arg::with_name("all")
