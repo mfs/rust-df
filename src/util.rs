@@ -6,7 +6,7 @@ pub fn iec(n: u64) -> String {
 
     let i = (n as f64).log(1024_f64).floor() as u32;
     let p = 1024_u64.pow(i);
-    let s = (n as f64)/(p as f64);
+    let s = (n as f64) / (p as f64);
     format!("{:.0}{}", s, units[i as usize])
 }
 
@@ -55,6 +55,9 @@ mod tests {
         assert_eq!(shorten_lv("/dev/mapper/vg-lv"), "/dev/vg/lv");
         assert_eq!(shorten_lv("/dev/mapper/vg-lv--1"), "/dev/vg/lv-1");
         assert_eq!(shorten_lv("/dev/mapper/vg--one-lv"), "/dev/vg-one/lv");
-        assert_eq!(shorten_lv("/dev/mapper/vg--one-lv--one"), "/dev/vg-one/lv-one");
+        assert_eq!(
+            shorten_lv("/dev/mapper/vg--one-lv--one"),
+            "/dev/vg-one/lv-one"
+        );
     }
 }
