@@ -2,7 +2,6 @@ extern crate clap;
 extern crate colored;
 extern crate nix;
 
-mod filesystems;
 mod stats;
 mod util;
 
@@ -15,13 +14,11 @@ use std::io::BufRead;
 use std::io::BufReader;
 use std::process;
 
-use filesystems::pseudo_filesystems;
 use stats::Stats;
 use util::{bargraph, iec};
 
 const FS_SPEC: usize = 0;
 const FS_FILE: usize = 1;
-const FS_VFSTYPE: usize = 2;
 
 fn main() {
     let matches = App::new("rdf")
@@ -44,8 +41,6 @@ fn main() {
     };
     let reader = BufReader::new(&file);
 
-    let excludes = pseudo_filesystems();
-
     let mut stats: Vec<Stats> = Vec::new();
     let mut max_width = 0;
 
@@ -53,9 +48,6 @@ fn main() {
         match line {
             Ok(line) => {
                 let fields: Vec<&str> = line.split_whitespace().collect();
-                if !matches.is_present("all") && excludes.contains(fields[FS_VFSTYPE]) {
-                    continue;
-                }
                 let statvfs = match statvfs(fields[FS_FILE]) {
                     Ok(s) => s,
                     Err(err) => {
