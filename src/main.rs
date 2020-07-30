@@ -11,7 +11,7 @@ use std::fs::File;
 use std::io::BufReader;
 use std::io::BufRead;
 use std::process;
-use nix::sys::statvfs::vfs::Statvfs;
+use nix::sys::statvfs::statvfs;
 use colored::*;
 use clap::{Arg, App};
 
@@ -53,15 +53,15 @@ fn main() {
                 if !matches.is_present("all") && excludes.contains(fields[FS_VFSTYPE]) {
                     continue;
                 }
-                let statvfs = match Statvfs::for_path(fields[FS_FILE]) {
+                let statvfs = match statvfs(fields[FS_FILE]) {
                     Ok(s) => s,
                     Err(err) => {
                         println!("Error: {}", err);
                         continue;
                     }
                 };
-                let size = statvfs.f_blocks * statvfs.f_bsize;
-                let avail = statvfs.f_bavail * statvfs.f_bsize;
+                let size = statvfs.blocks() * statvfs.block_size();
+                let avail = statvfs.blocks_available() * statvfs.block_size();
                 if size == 0 && !matches.is_present("all") {
                     continue;
                 }
@@ -85,7 +85,7 @@ fn main() {
         "",
         "Mounted on",
     ];
-    let headers: Vec<ColoredString> = headers.into_iter().map(|x| x.yellow()).collect();
+    let headers: Vec<ColoredString> = headers.iter().map(|x| x.yellow()).collect();
     println!(
         "{:width$} {:>5} {:>5} {:>5} {:>5} {:20} {}",
         headers[0],
