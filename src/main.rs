@@ -1,23 +1,23 @@
 extern crate clap;
-extern crate nix;
 extern crate colored;
+extern crate nix;
 
-mod util;
-mod stats;
 mod filesystems;
+mod stats;
+mod util;
 
+use clap::{App, Arg};
+use colored::*;
+use nix::sys::statvfs::statvfs;
 use std::cmp;
 use std::fs::File;
-use std::io::BufReader;
 use std::io::BufRead;
+use std::io::BufReader;
 use std::process;
-use nix::sys::statvfs::statvfs;
-use colored::*;
-use clap::{Arg, App};
 
-use util::{iec, bargraph};
-use stats::Stats;
 use filesystems::pseudo_filesystems;
+use stats::Stats;
+use util::{bargraph, iec};
 
 const FS_SPEC: usize = 0;
 const FS_FILE: usize = 1;
@@ -27,9 +27,12 @@ fn main() {
     let matches = App::new("rdf")
         .version("0.1.0")
         .author("Mike Sampson <mike@sda.io>")
-        .arg(Arg::with_name("all").long("all").short("a").help(
-            "Display all filesystems",
-        ))
+        .arg(
+            Arg::with_name("all")
+                .long("all")
+                .short("a")
+                .help("Display all filesystems"),
+        )
         .get_matches();
 
     let file = match File::open("/proc/mounts") {
@@ -121,5 +124,4 @@ fn main() {
             width = max_width
         );
     }
-
 }
