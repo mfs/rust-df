@@ -17,4 +17,3 @@ release, debug and static builds. Run `fab --list` to view available targets.
 
 ![rust-df screenshot](images/screen.png)
 
-*Yes my NAS is running out of space.*
