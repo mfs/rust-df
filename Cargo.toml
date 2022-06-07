@@ -5,6 +5,6 @@ authors = ["Mike Sampson <mike@sambodata.com>"]
 license = "MIT"
 
 [dependencies]
-nix = "0.18"
+nix = "0.24.1"
 colored = "2"
-clap = "2.33.1"
+clap = "3.1.18"

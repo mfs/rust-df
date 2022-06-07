@@ -5,7 +5,7 @@ extern crate nix;
 mod stats;
 mod util;
 
-use clap::{App, Arg};
+use clap::{Command, Arg};
 use colored::*;
 use nix::sys::statvfs::statvfs;
 use std::cmp;
@@ -21,13 +21,13 @@ const FS_SPEC: usize = 0;
 const FS_FILE: usize = 1;
 
 fn main() {
-    let matches = App::new("rdf")
+    let matches = Command::new("rdf")
         .version("0.1.0")
         .author("Mike Sampson <mike@sda.io>")
         .arg(
-            Arg::with_name("all")
+            Arg::new("all")
                 .long("all")
-                .short("a")
+                .short('a')
                 .help("Display all filesystems"),
         )
         .get_matches();
