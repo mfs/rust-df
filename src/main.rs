@@ -51,7 +51,7 @@ fn main() {
                 let statvfs = match statvfs(fields[FS_FILE]) {
                     Ok(s) => s,
                     Err(err) => {
-                        println!("Error: {}", err);
+                        println!("Error: statvfs({}) failed: {}", fields[FS_FILE], err);
                         continue;
                     }
                 };
