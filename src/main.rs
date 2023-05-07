@@ -5,7 +5,7 @@ extern crate nix;
 mod stats;
 mod util;
 
-use clap::{Command, Arg};
+use clap::{Arg, Command};
 use colored::*;
 use nix::sys::statvfs::statvfs;
 use std::cmp;
