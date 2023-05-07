@@ -35,7 +35,7 @@ fn main() {
     let file = match File::open("/proc/mounts") {
         Ok(f) => f,
         Err(e) => {
-            println!("Error: Could not open /proc/mounts - {}", e);
+            eprintln!("Error: Could not open /proc/mounts - {}", e);
             process::exit(1);
         }
     };
@@ -51,7 +51,7 @@ fn main() {
                 let statvfs = match statvfs(fields[FS_FILE]) {
                     Ok(s) => s,
                     Err(err) => {
-                        println!("Error: statvfs({}) failed: {}", fields[FS_FILE], err);
+                        eprintln!("Error: statvfs({}) failed: {}", fields[FS_FILE], err);
                         continue;
                     }
                 };
@@ -65,7 +65,7 @@ fn main() {
                 max_width = cmp::max(max_width, s.filesystem.len());
                 stats.push(s);
             }
-            Err(err) => println!("Error: {}", err),
+            Err(err) => eprintln!("Error: {}", err),
         }
     }
 
