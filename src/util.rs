@@ -46,6 +46,13 @@ pub fn bargraph(mut percent: f64) -> String {
     format!("{}{}", bar1, bar2)
 }
 
+pub fn is_virtual(fs: &str) -> bool {
+    match fs {
+        "devtmpfs" | "portal" | "tmpfs" => true,
+        _ => fs.starts_with("/dev/loop") || fs.starts_with("systemd-"),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::shorten_lv;

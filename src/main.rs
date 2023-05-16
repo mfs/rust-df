@@ -15,7 +15,7 @@ use std::io::BufReader;
 use std::process;
 
 use stats::Stats;
-use util::{bargraph, iec};
+use util::{bargraph, iec, is_virtual};
 
 const FS_SPEC: usize = 0;
 const FS_FILE: usize = 1;
@@ -48,6 +48,9 @@ fn main() {
         match line {
             Ok(line) => {
                 let fields: Vec<&str> = line.split_whitespace().collect();
+                if !matches.is_present("all") && is_virtual(fields[FS_SPEC]) {
+                    continue;
+                }
                 let statvfs = match statvfs(fields[FS_FILE]) {
                     Ok(s) => s,
                     Err(err) => {
