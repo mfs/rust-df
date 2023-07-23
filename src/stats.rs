@@ -10,11 +10,12 @@ pub struct Stats {
     pub avail: u64,
     pub percent: f64,
     pub mount: String,
+    pub fsid: u64,
     score: usize,
 }
 
 impl Stats {
-    pub fn new(fs: &str, size: u64, avail: u64, mount: &str) -> Stats {
+    pub fn new(fs: &str, size: u64, avail: u64, mount: &str, fsid: u64) -> Stats {
         let used = size - avail;
         let percent = used as f64 / size as f64;
         let score = score(fs);
@@ -25,6 +26,7 @@ impl Stats {
             used: used,
             percent: 100.0 * percent,
             mount: mount.to_string(),
+            fsid: fsid,
             score: score,
         }
     }

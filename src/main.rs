@@ -5,7 +5,7 @@ extern crate nix;
 mod stats;
 mod util;
 
-use clap::{Command, Arg};
+use clap::{Arg, Command};
 use colored::*;
 use nix::sys::statvfs::statvfs;
 use std::cmp;
@@ -15,7 +15,7 @@ use std::io::BufReader;
 use std::process;
 
 use stats::Stats;
-use util::{bargraph, iec};
+use util::{bargraph, iec, is_virtual};
 
 const FS_SPEC: usize = 0;
 const FS_FILE: usize = 1;
@@ -35,7 +35,7 @@ fn main() {
     let file = match File::open("/proc/mounts") {
         Ok(f) => f,
         Err(e) => {
-            println!("Error: Could not open /proc/mounts - {}", e);
+            eprintln!("Error: Could not open /proc/mounts - {}", e);
             process::exit(1);
         }
     };
@@ -48,24 +48,31 @@ fn main() {
         match line {
             Ok(line) => {
                 let fields: Vec<&str> = line.split_whitespace().collect();
+                if !matches.is_present("all") && is_virtual(fields[FS_SPEC]) {
+                    continue;
+                }
                 let statvfs = match statvfs(fields[FS_FILE]) {
                     Ok(s) => s,
                     Err(err) => {
-                        println!("Error: {}", err);
+                        eprintln!("Error: statvfs({}) failed: {}", fields[FS_FILE], err);
                         continue;
                     }
                 };
+                let fsid = statvfs.filesystem_id();
+                if let Some(_) = stats.iter().find(|s| s.fsid == fsid) {
+                    continue;
+                }
                 let size = statvfs.blocks() * statvfs.block_size();
                 let avail = statvfs.blocks_available() * statvfs.block_size();
                 if size == 0 && !matches.is_present("all") {
                     continue;
                 }
-                let s = Stats::new(fields[FS_SPEC], size, avail, fields[FS_FILE]);
+                let s = Stats::new(fields[FS_SPEC], size, avail, fields[FS_FILE], fsid);
 
                 max_width = cmp::max(max_width, s.filesystem.len());
                 stats.push(s);
             }
-            Err(err) => println!("Error: {}", err),
+            Err(err) => eprintln!("Error: {}", err),
         }
     }
 
